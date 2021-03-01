@@ -9,6 +9,7 @@ export type validator = (x:unknown)=>boolean;
 export type Logger = {
 	warn: (...args:any[])=>any
 }
+export type Primitive = string|boolean|number;
 
 // ---------------- State
 const validators:{
@@ -129,7 +130,7 @@ export function safeParseNumber(value:unknown):number|null {
 	return asNumber.toString() === value ? asNumber : null;
 }
 
-export function isPrimitive(value:unknown) {
+export function isPrimitive(value:unknown):value is Primitive {
 	return _.isString(value) || _.isNumber(value) || _.isBoolean(value);
 }
 
@@ -137,21 +138,8 @@ export function isClass(variable:unknown):variable is Class {
 	return _.isFunction(variable);
 }
 
-export function isSubClass(SubClass:unknown, Class:Class, includeIdentity = true) {
-	if(!isClass(SubClass)) return false;
+export function isSubClass(value:unknown, Parent:Class, includeIdentity = true):value is Class {
+	if(!isClass(value)) return false;
 
-	return SubClass.prototype instanceof Class || (includeIdentity && SubClass === Class);
-}
-
-export function checkMethod(value:unknown, method:string, name?:string) {
-	if(!_.isObject(value) || !_.isFunction(_.get(value, method))) {
-		throw new Error(`${namePrefix(name)}Missing method '${method}'.`);
-	}
-	return value;
-}
-export function checkMethods(value:unknown, methods:string[], name?:string) {
-	for(let method of methods) {
-		checkMethod(value, method, name);
-	}
-	return value;
+	return value.prototype instanceof Parent || (includeIdentity && value === Parent);
 }
