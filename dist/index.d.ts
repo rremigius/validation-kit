@@ -6,7 +6,8 @@ export declare type validator = (x: unknown) => boolean;
 export declare type Logger = {
     warn: (...args: any[]) => any;
 };
-export declare type Primitive = string | boolean | number;
+export declare type primitive = string | boolean | number;
+export declare type alphanumeric = string | number;
 export declare class ValidationError extends Error {
     static getMessage(value: unknown, expectedType: string, name: string): string;
     constructor(value: unknown, expectedType: string, name: string);
@@ -52,7 +53,7 @@ export declare function safeParseNumber(value: unknown): number | null;
  * @param value
  * @return {boolean}
  */
-export declare function isPrimitive(value: unknown): value is Primitive;
+export declare function isPrimitive(value: unknown): value is primitive;
 /**
  * Checks if a value is a class (or function).
  * @param variable
