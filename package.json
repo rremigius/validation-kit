@@ -1,7 +1,7 @@
 {
-  "name": "common-validation",
-  "version": "1.0.0",
-  "description": "Simple validation toolbox with common validations and a single-line validation function.",
+  "name": "validation-kit",
+  "version": "0.0.1",
+  "description": "Simple validation toolkit with common validations and a single-line validation function.",
   "main": "dist/index.js",
   "types" : "dist/index.d.ts",
   "repository": {
