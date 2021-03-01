@@ -6,6 +6,7 @@ export declare type validator = (x: unknown) => boolean;
 export declare type Logger = {
     warn: (...args: any[]) => any;
 };
+export declare type Primitive = string | boolean | number;
 export declare class ValidationError extends Error {
     static getMessage(value: unknown, expectedType: string, name: string): string;
     constructor(value: unknown, expectedType: string, name: string);
@@ -17,8 +18,27 @@ export declare class ValidationError extends Error {
  * @param {string} [name]		Optional name. Will be displayed in the error messages instead of the type name.
  */
 export declare function setValidator(type: string, validator: validator, name?: string): void;
+/**
+ * Sets the logger to use for warnings. Defaults to `console`.
+ * @param logger
+ */
 export declare function setLogger(logger: Logger): void;
+/**
+ * Checks the type of the given value. Throws an error if the type is not correct, and a default is not provided.
+ * @param value
+ * @param {string} type			A predefined type.
+ * @param {string} name			The name of the variable. Will be used for error/warning messages.
+ * @param [defaultValue]		The default to use in case the value did not match the type.
+ * @param {validator} [warnIf]	If a default value is applied, a warning will be issued if this function returns `true`.
+ * 								Input of the function is the value. As default behaviour, warnings will not be issued
+ * 								if the invalid value was `undefined` or `null`.
+ */
 export declare function checkType(value: unknown, type: string, name: string, defaultValue?: unknown, warnIf?: (x: unknown) => boolean): unknown;
+/**
+ * Checks if a value is a number or a string.
+ * @param value
+ * @return {boolean}
+ */
 export declare function isAlphanumeric(value: unknown): boolean;
 /**
  * Attempts to parse the given value as a number. Returns `null` if not possible, or if parsed number is different from
@@ -27,8 +47,23 @@ export declare function isAlphanumeric(value: unknown): boolean;
  * @return {number|null}
  */
 export declare function safeParseNumber(value: unknown): number | null;
-export declare function isPrimitive(value: unknown): boolean;
+/**
+ * Checks if a value is a primitive (string/number/boolean).
+ * @param value
+ * @return {boolean}
+ */
+export declare function isPrimitive(value: unknown): value is Primitive;
+/**
+ * Checks if a value is a class (or function).
+ * @param variable
+ * @return {boolean}
+ */
 export declare function isClass(variable: unknown): variable is Class;
-export declare function isSubClass(SubClass: unknown, Class: Class, includeIdentity?: boolean): boolean;
-export declare function checkMethod(value: unknown, method: string, name?: string): object;
-export declare function checkMethods(value: unknown, methods: string[], name?: string): unknown;
+/**
+ * Checks if a value is a subclass of the given parent class.
+ * @param value
+ * @param {Class} Parent
+ * @param {boolean} [includeIdentity]	Determines whether Parent itself should be considered a sub-class (defaults to true).
+ * @return {boolean}
+ */
+export declare function isSubClass(value: unknown, Parent: Class, includeIdentity?: boolean): value is Class;
