@@ -9,7 +9,8 @@ export type validator = (x:unknown)=>boolean;
 export type Logger = {
 	warn: (...args:any[])=>any
 }
-export type Primitive = string|boolean|number;
+export type primitive = string|boolean|number;
+export type alphanumeric = string|number;
 
 // ---------------- State
 const validators:{
@@ -154,7 +155,7 @@ export function safeParseNumber(value:unknown):number|null {
  * @param value
  * @return {boolean}
  */
-export function isPrimitive(value:unknown):value is Primitive {
+export function isPrimitive(value:unknown):value is primitive {
 	return _.isString(value) || _.isNumber(value) || _.isBoolean(value);
 }
 
