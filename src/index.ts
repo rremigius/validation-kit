@@ -62,10 +62,24 @@ export function setValidator(type:string, validator:validator, name?:string) {
 	};
 }
 
+/**
+ * Sets the logger to use for warnings. Defaults to `console`.
+ * @param logger
+ */
 export function setLogger(logger:Logger) {
 	log = logger;
 }
 
+/**
+ * Checks the type of the given value. Throws an error if the type is not correct, and a default is not provided.
+ * @param value
+ * @param {string} type			A predefined type.
+ * @param {string} name			The name of the variable. Will be used for error/warning messages.
+ * @param [defaultValue]		The default to use in case the value did not match the type.
+ * @param {validator} [warnIf]	If a default value is applied, a warning will be issued if this function returns `true`.
+ * 								Input of the function is the value. As default behaviour, warnings will not be issued
+ * 								if the invalid value was `undefined` or `null`.
+ */
 export function checkType(
 	value:unknown,
 	type:string,
@@ -108,6 +122,11 @@ export function checkType(
 	return defaultValue;
 }
 
+/**
+ * Checks if a value is a number or a string.
+ * @param value
+ * @return {boolean}
+ */
 export function isAlphanumeric(value:unknown) {
 	// parseFloat can handle non-strings fine; it will just return NaN
 	return !isNaN(parseFloat(value as any)) || _.isString(value);
@@ -130,14 +149,31 @@ export function safeParseNumber(value:unknown):number|null {
 	return asNumber.toString() === value ? asNumber : null;
 }
 
+/**
+ * Checks if a value is a primitive (string/number/boolean).
+ * @param value
+ * @return {boolean}
+ */
 export function isPrimitive(value:unknown):value is Primitive {
 	return _.isString(value) || _.isNumber(value) || _.isBoolean(value);
 }
 
+/**
+ * Checks if a value is a class (or function).
+ * @param variable
+ * @return {boolean}
+ */
 export function isClass(variable:unknown):variable is Class {
 	return _.isFunction(variable);
 }
 
+/**
+ * Checks if a value is a subclass of the given parent class.
+ * @param value
+ * @param {Class} Parent
+ * @param {boolean} [includeIdentity]	Determines whether Parent itself should be considered a sub-class (defaults to true).
+ * @return {boolean}
+ */
 export function isSubClass(value:unknown, Parent:Class, includeIdentity = true):value is Class {
 	if(!isClass(value)) return false;
 
