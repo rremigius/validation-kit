@@ -2,13 +2,20 @@
   "name": "common-validation",
   "version": "1.0.0",
   "description": "Simple validation toolbox with common validations and a single-line validation function.",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types" : "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rremigius/common-validation.git"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["validation", "types", "type checking"],
+  "author": "Remi Alkemade <info@remialkemade.nl>",
+  "homepage": "https://github.com/rremigius/common-validation",
+  "bugs": "https://github.com/rremigius/common-validation/issues",
   "license": "ISC",
   "dependencies": {
     "@types/lodash": "^4.14.168",
