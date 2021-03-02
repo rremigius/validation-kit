@@ -171,7 +171,7 @@ export function isClass(variable:unknown):variable is Class {
 /**
  * Checks if a value is a subclass of the given parent class.
  * @param value
- * @param {Class} Parent
+ * @param {Class} Parentgi
  * @param {boolean} [includeIdentity]	Determines whether Parent itself should be considered a sub-class (defaults to true).
  * @return {boolean}
  */
