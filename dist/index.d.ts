@@ -1,16 +1,16 @@
+import Log from 'log-control';
+declare const log: Log;
 export declare type Class = {
     name: string;
     new (...args: any[]): {};
 };
 export declare type validator = (x: unknown) => boolean;
-export declare type Logger = {
-    warn: (...args: any[]) => any;
-};
 export declare type primitive = string | boolean | number;
 export declare type alphanumeric = string | number;
+export { log };
 export declare class ValidationError extends Error {
-    static getMessage(value: unknown, expectedType: string, name: string): string;
-    constructor(value: unknown, expectedType: string, name: string);
+    static getMessage(value: unknown, expectedType: string, name?: string): string;
+    constructor(value: unknown, expectedType: string, name?: string);
 }
 /**
  * Set a validator for a given type. This validator can then be used from `checkType` with the specified type name.
@@ -19,12 +19,13 @@ export declare class ValidationError extends Error {
  * @param {string} [name]		Optional name. Will be displayed in the error messages instead of the type name.
  */
 export declare function setValidator(type: string, validator: validator, name?: string): void;
+export declare function check<T>(value: unknown, validator: (x: unknown) => boolean, expected: string, name?: string, options?: {
+    defaultValue?: T | ((x: unknown) => T);
+    warnIf?: (x: unknown) => boolean;
+}): T;
 /**
- * Sets the logger to use for warnings. Defaults to `console`.
- * @param logger
- */
-export declare function setLogger(logger: Logger): void;
-/**
+ * @deprecated Succeeded by `check`
+ *
  * Checks the type of the given value. Throws an error if the type is not correct, and a default is not provided.
  * @param value
  * @param {string} type			A predefined type.
@@ -68,3 +69,8 @@ export declare function isClass(variable: unknown): variable is Class;
  * @return {boolean}
  */
 export declare function isSubClass(value: unknown, Parent: Class, includeIdentity?: boolean): value is Class;
+/**
+ * Returns a validator function that checks if its argument is an instance of the given class.
+ * @param {Class} Class
+ */
+export declare function instanceOf(Class: Class): (value: unknown) => boolean;

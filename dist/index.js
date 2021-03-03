@@ -3,8 +3,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isSubClass = exports.isClass = exports.isPrimitive = exports.safeParseNumber = exports.isAlphanumeric = exports.checkType = exports.setLogger = exports.setValidator = exports.ValidationError = void 0;
+exports.instanceOf = exports.isSubClass = exports.isClass = exports.isPrimitive = exports.safeParseNumber = exports.isAlphanumeric = exports.checkType = exports.check = exports.setValidator = exports.ValidationError = exports.log = void 0;
 const lodash_1 = __importDefault(require("lodash"));
+const log_control_1 = __importDefault(require("log-control"));
+const log = log_control_1.default.instance("validation");
+exports.log = log;
 // ---------------- State
 const validators = {
     alphanumeric: { name: 'alphanumeric', function: isAlphanumeric },
@@ -15,7 +18,6 @@ const validators = {
     object: { name: 'object', function: lodash_1.default.isPlainObject },
     string: { name: 'string', function: lodash_1.default.isString }
 };
-let log = console;
 // ---------------- End State
 function namePrefix(name) {
     if (!name)
@@ -49,15 +51,28 @@ function setValidator(type, validator, name) {
     };
 }
 exports.setValidator = setValidator;
-/**
- * Sets the logger to use for warnings. Defaults to `console`.
- * @param logger
- */
-function setLogger(logger) {
-    log = logger;
+function check(value, validator, expected, name, options) {
+    let valid = validator(value);
+    if (valid)
+        return value;
+    let defaultValue = options === null || options === void 0 ? void 0 : options.defaultValue;
+    if (options === null || options === void 0 ? void 0 : options.defaultValue) {
+        if (lodash_1.default.isFunction(options.defaultValue)) {
+            defaultValue = options.defaultValue(value);
+        }
+        let shouldWarn = (options === null || options === void 0 ? void 0 : options.warnIf) || ((x) => !lodash_1.default.isNil(x));
+        if (shouldWarn(value)) {
+            log.warn(ValidationError.getMessage(value, expected, name));
+        }
+        // TS: cannot be function anymore because we checked for that
+        return defaultValue;
+    }
+    throw new ValidationError(value, expected, name);
 }
-exports.setLogger = setLogger;
+exports.check = check;
 /**
+ * @deprecated Succeeded by `check`
+ *
  * Checks the type of the given value. Throws an error if the type is not correct, and a default is not provided.
  * @param value
  * @param {string} type			A predefined type.
@@ -160,3 +175,11 @@ function isSubClass(value, Parent, includeIdentity = true) {
     return value.prototype instanceof Parent || (includeIdentity && value === Parent);
 }
 exports.isSubClass = isSubClass;
+/**
+ * Returns a validator function that checks if its argument is an instance of the given class.
+ * @param {Class} Class
+ */
+function instanceOf(Class) {
+    return (value) => value instanceof Class;
+}
+exports.instanceOf = instanceOf;
