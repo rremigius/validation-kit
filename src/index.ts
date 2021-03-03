@@ -1,4 +1,7 @@
 import _ from 'lodash';
+import Log from 'log-control';
+
+const log = Log.instance("validation");
 
 export type Class = {
 	name:string;
@@ -6,11 +9,10 @@ export type Class = {
 };
 
 export type validator = (x:unknown)=>boolean;
-export type Logger = {
-	warn: (...args:any[])=>any
-}
 export type primitive = string|boolean|number;
 export type alphanumeric = string|number;
+
+export {log};
 
 // ---------------- State
 const validators:{
@@ -27,7 +29,7 @@ const validators:{
 	object: { name: 'object', function: _.isPlainObject },
 	string: {name: 'string', function: _.isString }
 };
-let log:Logger = console;
+
 // ---------------- End State
 
 function namePrefix(name?:string) {
@@ -40,11 +42,11 @@ function valueType(value:unknown) {
 }
 
 export class ValidationError extends Error {
-	static getMessage(value:unknown, expectedType:string, name:string) {
+	static getMessage(value:unknown, expectedType:string, name?:string) {
 		return `${namePrefix(name)}Expected ${expectedType}, ${valueType(value)} given.`;
 	}
 
-	constructor(value:unknown, expectedType:string, name:string) {
+	constructor(value:unknown, expectedType:string, name?:string) {
 		super(ValidationError.getMessage(value, expectedType, name));
 	}
 }
@@ -63,15 +65,37 @@ export function setValidator(type:string, validator:validator, name?:string) {
 	};
 }
 
-/**
- * Sets the logger to use for warnings. Defaults to `console`.
- * @param logger
- */
-export function setLogger(logger:Logger) {
-	log = logger;
+export function check<T>(
+	value:unknown,
+	validator:(x:unknown)=>boolean,
+	expected:string,
+	name?:string,
+	options?: {
+		defaultValue?: T|((x: unknown) => T),
+		warnIf?: (x: unknown) => boolean
+	}
+):T {
+	let valid = validator(value);
+	if(valid) return <T>value;
+
+	let defaultValue = options?.defaultValue;
+	if(options?.defaultValue) {
+		if(_.isFunction(options.defaultValue)) {
+			defaultValue = options.defaultValue(value);
+		}
+		let shouldWarn = options?.warnIf || ((x:unknown)=>!_.isNil(x));
+		if(shouldWarn(value)) {
+			log.warn(ValidationError.getMessage(value, expected, name));
+		}
+		// TS: cannot be function anymore because we checked for that
+		return <T>defaultValue;
+	}
+	throw new ValidationError(value, expected, name);
 }
 
 /**
+ * @deprecated Succeeded by `check`
+ *
  * Checks the type of the given value. Throws an error if the type is not correct, and a default is not provided.
  * @param value
  * @param {string} type			A predefined type.
@@ -179,4 +203,12 @@ export function isSubClass(value:unknown, Parent:Class, includeIdentity = true):
 	if(!isClass(value)) return false;
 
 	return value.prototype instanceof Parent || (includeIdentity && value === Parent);
+}
+
+/**
+ * Returns a validator function that checks if its argument is an instance of the given class.
+ * @param {Class} Class
+ */
+export function instanceOf(Class:Class) {
+	return (value:unknown) => value instanceof Class;
 }
