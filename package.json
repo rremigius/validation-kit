@@ -1,6 +1,6 @@
 {
   "name": "validation-kit",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Simple validation toolkit with common validations and a single-line validation function.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
