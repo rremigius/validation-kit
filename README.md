@@ -104,6 +104,8 @@ check(Animal, subClass(Animal, false), "subclass of Animal"); // error
 
 #### `ValidationError extends Error`
 
+An error to be thrown when validation fails for some value.
+
 #### `constructor(value, expectedType, name)`
 
 - `value`: Value that was validated
