@@ -163,7 +163,7 @@ export function isAlphanumeric(value:unknown) {
  * @param {number} value
  * @return {number|null}
  */
-export function safeParseNumber(value:unknown):number|null {
+export function parseNumberStrict(value:unknown):number|null {
 	if (typeof value === 'number') return value;
 	if (typeof value !== 'string') return null;
 
@@ -195,7 +195,7 @@ export function isClass(variable:unknown):variable is Class {
 /**
  * Checks if a value is a subclass of the given parent class.
  * @param value
- * @param {Class} Parentgi
+ * @param {Class} Parent
  * @param {boolean} [includeIdentity]	Determines whether Parent itself should be considered a sub-class (defaults to true).
  * @return {boolean}
  */
@@ -203,6 +203,16 @@ export function isSubClass(value:unknown, Parent:Class, includeIdentity = true):
 	if(!isClass(value)) return false;
 
 	return value.prototype instanceof Parent || (includeIdentity && value === Parent);
+}
+
+/**
+ * Returns a validator function that checks if its argument is a subclass of the given parent class.
+ * @param {Class} Parent
+ * @param {boolean} [includeIdentity]	Determines whether Parent itself should be considered a sub-class (defaults to true).
+ * @return {validator}
+ */
+export function subClass(Parent:Class, includeIdentity = true) {
+	return (value:unknown) => isSubClass(value, Parent, includeIdentity);
 }
 
 /**

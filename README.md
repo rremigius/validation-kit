@@ -51,4 +51,78 @@ let fullName = check<string>(123, _.isString, "string");
 Adding the dynamic type will let Typescript know the result is checked to be the given type. Make sure the dynamic type
 matches the runtime type validator!
 
-### TODO: add included validators 
+### Functions
+
+#### `instanceOf(Class)`
+
+Returns a validator function that checks if an argument is of the given class.
+
+- `Class`: (Class/function) Resulting validator will check if its argument is of this class.
+
+**Example Usage**:
+
+```typescript
+let peter = new Person();
+check(peter, instanceOf(Person), 'Person'); // ok
+```
+
+#### `parseNumberStrict(value)`
+
+Attempts to parse the given string to a number, but only if the string representation of the resulting number is the
+same as the input string.
+
+- `value`: (string) string to parse to number
+
+**Example Usage**:
+
+```typescript
+parseNumberStrict("1.2"); // 1.2
+parseNumberStrict([]); // null
+parseNumberStrict("01"); // null (whereas parseFloat would parse as 1)
+parseNumberStrict("1.20"); // null (whereas parseFloat would parse as 1.2)
+```
+
+#### `subClass(Parent, includeIdentity)`
+
+Returns a validator function that checks if an argument is a subclass of the given class.
+
+- `Parent`: (Class/function) Resulting validator will check if its argument is a subclass of this class.
+- `includeIdentity`: (boolean, optional) Determines whether the Parent class itself should return `true` in the validator.
+    Defaults to `true`.
+
+**Example Usage**:
+
+```typescript
+class Animal {}
+class Cow extends Animal {}
+check(Cow, subClass(Animal), "subclass of Animal"); // ok
+check(Animal, subClass(Animal), "subclass of Animal"); // ok
+check(Animal, subClass(Animal, false), "subclass of Animal"); // error 
+```
+
+### Classes
+
+#### `ValidationError extends Error`
+
+#### `constructor(value, expectedType, name)`
+
+- `value`: Value that was validated
+- `expectedType`: (string) Description of the type
+- `name`: (string, optional) Name of the validated value
+
+#### `static getMessage(value, expectedType, name)`
+
+Generates a human-readable error message as to why validation failed for the given value.
+
+- `value`: Value that was validated
+- `expectedType`: (string) Description of the type
+- `name`: (string, optional) Name of the validated value
+- **returns**: (string) Error message
+
+### Validators
+
+Below is an overview of included validators, and what a `true` return value of these validators means:
+
+- `isAlphanumeric`: argument is string or number
+- `isClass`: argument is a function (semantic alias of Lodash's `isFunction`)
+- `isPrimitive`: argument is string, number or boolean
