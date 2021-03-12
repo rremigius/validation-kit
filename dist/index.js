@@ -3,11 +3,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.instanceOf = exports.isSubClass = exports.isClass = exports.isPrimitive = exports.safeParseNumber = exports.isAlphanumeric = exports.checkType = exports.check = exports.setValidator = exports.ValidationError = exports.log = void 0;
+exports.instanceOf = exports.subClass = exports.isSubClass = exports.isClass = exports.isPrimitive = exports.parseNumberStrict = exports.isAlphanumeric = exports.checkType = exports.check = exports.setValidator = exports.ValidationError = exports.log = exports.Alphanumeric = void 0;
 const lodash_1 = __importDefault(require("lodash"));
 const log_control_1 = __importDefault(require("log-control"));
 const log = log_control_1.default.instance("validation");
 exports.log = log;
+/**
+ * Can be used as identifier for alphanumeric type.
+ */
+class Alphanumeric {
+}
+exports.Alphanumeric = Alphanumeric;
 // ---------------- State
 const validators = {
     alphanumeric: { name: 'alphanumeric', function: isAlphanumeric },
@@ -132,7 +138,7 @@ exports.isAlphanumeric = isAlphanumeric;
  * @param {number} value
  * @return {number|null}
  */
-function safeParseNumber(value) {
+function parseNumberStrict(value) {
     if (typeof value === 'number')
         return value;
     if (typeof value !== 'string')
@@ -143,7 +149,7 @@ function safeParseNumber(value) {
         return null;
     return asNumber.toString() === value ? asNumber : null;
 }
-exports.safeParseNumber = safeParseNumber;
+exports.parseNumberStrict = parseNumberStrict;
 /**
  * Checks if a value is a primitive (string/number/boolean).
  * @param value
@@ -165,7 +171,7 @@ exports.isClass = isClass;
 /**
  * Checks if a value is a subclass of the given parent class.
  * @param value
- * @param {Class} Parentgi
+ * @param {Class} Parent
  * @param {boolean} [includeIdentity]	Determines whether Parent itself should be considered a sub-class (defaults to true).
  * @return {boolean}
  */
@@ -175,6 +181,16 @@ function isSubClass(value, Parent, includeIdentity = true) {
     return value.prototype instanceof Parent || (includeIdentity && value === Parent);
 }
 exports.isSubClass = isSubClass;
+/**
+ * Returns a validator function that checks if its argument is a subclass of the given parent class.
+ * @param {Class} Parent
+ * @param {boolean} [includeIdentity]	Determines whether Parent itself should be considered a sub-class (defaults to true).
+ * @return {validator}
+ */
+function subClass(Parent, includeIdentity = true) {
+    return (value) => isSubClass(value, Parent, includeIdentity);
+}
+exports.subClass = subClass;
 /**
  * Returns a validator function that checks if its argument is an instance of the given class.
  * @param {Class} Class

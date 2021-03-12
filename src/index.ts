@@ -8,6 +8,11 @@ export type Class = {
 	new (...args: any[]): {};
 };
 
+/**
+ * Can be used as identifier for alphanumeric type.
+ */
+export class Alphanumeric {}
+
 export type validator = (x:unknown)=>boolean;
 export type primitive = string|boolean|number;
 export type alphanumeric = string|number;

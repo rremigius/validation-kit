@@ -4,6 +4,11 @@ export declare type Class = {
     name: string;
     new (...args: any[]): {};
 };
+/**
+ * Can be used as identifier for alphanumeric type.
+ */
+export declare class Alphanumeric {
+}
 export declare type validator = (x: unknown) => boolean;
 export declare type primitive = string | boolean | number;
 export declare type alphanumeric = string | number;
@@ -48,7 +53,7 @@ export declare function isAlphanumeric(value: unknown): boolean;
  * @param {number} value
  * @return {number|null}
  */
-export declare function safeParseNumber(value: unknown): number | null;
+export declare function parseNumberStrict(value: unknown): number | null;
 /**
  * Checks if a value is a primitive (string/number/boolean).
  * @param value
@@ -64,11 +69,18 @@ export declare function isClass(variable: unknown): variable is Class;
 /**
  * Checks if a value is a subclass of the given parent class.
  * @param value
- * @param {Class} Parentgi
+ * @param {Class} Parent
  * @param {boolean} [includeIdentity]	Determines whether Parent itself should be considered a sub-class (defaults to true).
  * @return {boolean}
  */
 export declare function isSubClass(value: unknown, Parent: Class, includeIdentity?: boolean): value is Class;
+/**
+ * Returns a validator function that checks if its argument is a subclass of the given parent class.
+ * @param {Class} Parent
+ * @param {boolean} [includeIdentity]	Determines whether Parent itself should be considered a sub-class (defaults to true).
+ * @return {validator}
+ */
+export declare function subClass(Parent: Class, includeIdentity?: boolean): (value: unknown) => boolean;
 /**
  * Returns a validator function that checks if its argument is an instance of the given class.
  * @param {Class} Class
