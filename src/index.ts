@@ -17,6 +17,10 @@ export type validator = (x:unknown)=>boolean;
 export type primitive = string|boolean|number;
 export type alphanumeric = string|number;
 
+export type Constructor<T> = {
+	new(...args: any[]): T;
+};
+
 export {log};
 
 // ---------------- State
