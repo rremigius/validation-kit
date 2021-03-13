@@ -12,6 +12,9 @@ export declare class Alphanumeric {
 export declare type validator = (x: unknown) => boolean;
 export declare type primitive = string | boolean | number;
 export declare type alphanumeric = string | number;
+export declare type Constructor<T> = {
+    new (...args: any[]): T;
+};
 export { log };
 export declare class ValidationError extends Error {
     static getMessage(value: unknown, expectedType: string, name?: string): string;
