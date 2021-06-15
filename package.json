@@ -1,6 +1,6 @@
 {
   "name": "validation-kit",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Simple validation toolkit with common validations and a single-line validation function.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -9,7 +9,7 @@
     "url": "git+https://github.com/rremigius/common-validation.git"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha -r esm -r ts-node/register **/*.spec.ts",
     "build": "tsc"
   },
   "keywords": [
@@ -23,8 +23,14 @@
   "license": "ISC",
   "dependencies": {
     "@types/lodash": "^4.14.168",
+    "esm": "^3.2.25",
     "lodash": "^4.17.21",
     "log-control": "0.0.2",
+    "ts-node": "^9.1.1",
     "typescript": "^4.2.3"
+  },
+  "devDependencies": {
+    "chai": "^4.3.4",
+    "mocha": "^8.3.0"
   }
 }

@@ -23,24 +23,6 @@ export type Constructor<T> = {
 
 export {log};
 
-// ---------------- State
-const validators:{
-	[key:string]: {
-		name: string,
-		function: validator
-	}
-} = {
-	alphanumeric: { name: 'alphanumeric', function: isAlphanumeric },
-	array: { name: 'array', function: _.isArray	},
-	boolean: { name: 'boolean', function: _.isBoolean },
-	function: { name: 'function', function: _.isFunction } ,
-	number: { name: 'number', function: _.isNumber },
-	object: { name: 'object', function: _.isPlainObject },
-	string: {name: 'string', function: _.isString }
-};
-
-// ---------------- End State
-
 function namePrefix(name?:string) {
 	if(!name) return '';
 	return `${name}: `;
@@ -60,100 +42,32 @@ export class ValidationError extends Error {
 	}
 }
 
-/**
- * Set a validator for a given type. This validator can then be used from `checkType` with the specified type name.
- * @param {string} type			The name of the type.
- * @param {validator} validator	Validator function.
- * @param {string} [name]		Optional name. Will be displayed in the error messages instead of the type name.
- */
-export function setValidator(type:string, validator:validator, name?:string) {
-	if(name === undefined) name = type;
-	validators[type] = {
-		name: name,
-		function: validator
-	};
-}
-
 export function check<T>(
 	value:unknown,
 	validator:(x:unknown)=>boolean,
 	expected:string,
 	name?:string,
 	options?: {
-		defaultValue?: T|((x: unknown) => T),
+		default?: T|((x: unknown) => T),
 		warnIf?: (x: unknown) => boolean
 	}
 ):T {
 	let valid = validator(value);
 	if(valid) return <T>value;
 
-	let defaultValue = options?.defaultValue;
-	if(options?.defaultValue) {
-		if(_.isFunction(options.defaultValue)) {
-			defaultValue = options.defaultValue(value);
+	if(options && 'default' in options) {
+		let defaultValue = options.default;
+		if(_.isFunction(defaultValue)) {
+			defaultValue = defaultValue(value);
 		}
-		let shouldWarn = options?.warnIf || ((x:unknown)=>!_.isNil(x));
+		let shouldWarn = options && options.warnIf || ((x:unknown)=>!_.isNil(x));
 		if(shouldWarn(value)) {
 			log.warn(ValidationError.getMessage(value, expected, name));
 		}
-		// TS: cannot be function anymore because we checked for that
-		return <T>defaultValue;
+		// TS: runtime check should match Type, that's the user's responsibility
+		return <T><unknown>defaultValue;
 	}
 	throw new ValidationError(value, expected, name);
-}
-
-/**
- * @deprecated Succeeded by `check`
- *
- * Checks the type of the given value. Throws an error if the type is not correct, and a default is not provided.
- * @param value
- * @param {string} type			A predefined type.
- * @param {string} name			The name of the variable. Will be used for error/warning messages.
- * @param [defaultValue]		The default to use in case the value did not match the type.
- * @param {validator} [warnIf]	If a default value is applied, a warning will be issued if this function returns `true`.
- * 								Input of the function is the value. As default behaviour, warnings will not be issued
- * 								if the invalid value was `undefined` or `null`.
- */
-export function checkType(
-	value:unknown,
-	type:string,
-	name:string,
-	defaultValue:unknown = undefined,
-	warnIf:(x:unknown)=>boolean = (x:unknown)=>!_.isNil(x)
-) {
-	let valid = false;
-	let expectedType = type;
-
-	// Validate
-	if(isClass(type)) {
-		valid = value instanceof type;
-		expectedType = `instance of ${type.name}`;
-	} else if(_.isString(type)) {
-		if(!(type in validators)) {
-			return false;
-		}
-		const validate = validators[type].function;
-		valid = validate(value);
-	}
-
-	// All good, just return value
-	if(valid) {
-		return value;
-	}
-
-	// Without default value we cannot continue and we have to throw an Error
-	if(defaultValue === undefined) {
-		throw new ValidationError(value, expectedType, name);
-	}
-	// Generate default value from given function
-	if(_.isFunction(defaultValue)) {
-		defaultValue = defaultValue(value);
-	}
-	// Should we provide a warning?
-	if(warnIf(value)) {
-		log.warn(`${namePrefix(name)}Expected ${type}, ${valueType(value)} given. Using default:`, defaultValue);
-	}
-	return defaultValue;
 }
 
 /**
