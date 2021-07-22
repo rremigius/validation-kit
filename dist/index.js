@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import Log from 'log-control';
+import { isString } from "./utils";
 const log = Log.instance("validation");
 /**
  * Can be used as identifier for alphanumeric type.
@@ -12,34 +13,47 @@ function namePrefix(name) {
         return '';
     return `${name}: `;
 }
-function valueType(value) {
+export function valueType(value) {
     return _.isFunction(value) ? value.name : value;
 }
 export class ValidationError extends Error {
     static getMessage(value, expectedType, name) {
-        return `${namePrefix(name)}Expected ${expectedType}, ${valueType(value)} given.`;
+        if (!expectedType)
+            return `${namePrefix(name)}Invalid value; ${valueType(value)} given.`;
+        return `${namePrefix(name)}Expected ${expectedType}; ${valueType(value)} given.`;
     }
     constructor(value, expectedType, name) {
         super(ValidationError.getMessage(value, expectedType, name));
     }
 }
-export function check(value, validator, expected, name, options) {
-    let valid = validator(value);
+export function check(value, validator, options) {
+    if (_.isFunction(validator)) {
+        validator = {
+            validate: validator
+        };
+    }
+    let name;
+    if (isString(options)) {
+        name = options;
+        options = {};
+    }
+    let valid = validator.validate(value);
     if (valid)
         return value;
+    options = { ...validator.options, ...options };
     if (options && 'default' in options) {
         let defaultValue = options.default;
         if (_.isFunction(defaultValue)) {
             defaultValue = defaultValue(value);
         }
-        let shouldWarn = options && options.warnIf || ((x) => !_.isNil(x));
+        let shouldWarn = options && options.warn || ((x) => !_.isNil(x));
         if (shouldWarn(value)) {
-            log.warn(ValidationError.getMessage(value, expected, name));
+            log.warn(ValidationError.getMessage(value, validator.expected, name));
         }
         // TS: runtime check should match Type, that's the user's responsibility
         return defaultValue;
     }
-    throw new ValidationError(value, expected, name);
+    throw new ValidationError(value, validator.expected, name);
 }
 /**
  * Checks if a value is a number or a string.

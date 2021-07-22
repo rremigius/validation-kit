@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import Log from 'log-control';
+import {isString} from "./utils";
 
 const log = Log.instance("validation");
 
@@ -28,46 +29,64 @@ function namePrefix(name?:string) {
 	return `${name}: `;
 }
 
-function valueType(value:unknown) {
+export function valueType(value:unknown) {
 	return _.isFunction(value) ? value.name : value;
 }
 
 export class ValidationError extends Error {
-	static getMessage(value:unknown, expectedType:string, name?:string) {
-		return `${namePrefix(name)}Expected ${expectedType}, ${valueType(value)} given.`;
+	static getMessage(value:unknown, expectedType?:string, name?:string) {
+		if(!expectedType) return `${namePrefix(name)}Invalid value; ${valueType(value)} given.`
+		return `${namePrefix(name)}Expected ${expectedType}; ${valueType(value)} given.`;
 	}
 
-	constructor(value:unknown, expectedType:string, name?:string) {
+	constructor(value:unknown, expectedType?:string, name?:string) {
 		super(ValidationError.getMessage(value, expectedType, name));
 	}
 }
 
+export type ValidatorOptions<T> = {
+	name?:string,
+	default?: T|((x: unknown) => T),
+	warn?: (x: unknown) => boolean
+}
+export type Validator<T> = {
+	validate:(x:unknown)=>boolean,
+	expected?:string,
+	options?:ValidatorOptions<T>
+};
 export function check<T>(
 	value:unknown,
-	validator:(x:unknown)=>boolean,
-	expected:string,
-	name?:string,
-	options?: {
-		default?: T|((x: unknown) => T),
-		warnIf?: (x: unknown) => boolean
-	}
+	validator:Validator<T>|((x:unknown)=>boolean),
+	options?: ValidatorOptions<T>|string
 ):T {
-	let valid = validator(value);
+	if(_.isFunction(validator)) {
+		validator = {
+			validate: validator
+		}
+	}
+	let name;
+	if(isString(options)) {
+		name = options;
+		options = {};
+	}
+	let valid = validator.validate(value);
 	if(valid) return <T>value;
+
+	options = {...validator.options, ...options};
 
 	if(options && 'default' in options) {
 		let defaultValue = options.default;
 		if(_.isFunction(defaultValue)) {
 			defaultValue = defaultValue(value);
 		}
-		let shouldWarn = options && options.warnIf || ((x:unknown)=>!_.isNil(x));
+		let shouldWarn = options && options.warn || ((x:unknown)=>!_.isNil(x));
 		if(shouldWarn(value)) {
-			log.warn(ValidationError.getMessage(value, expected, name));
+			log.warn(ValidationError.getMessage(value, validator.expected, name));
 		}
 		// TS: runtime check should match Type, that's the user's responsibility
 		return <T><unknown>defaultValue;
 	}
-	throw new ValidationError(value, expected, name);
+	throw new ValidationError(value, validator.expected, name);
 }
 
 /**

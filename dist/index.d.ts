@@ -16,14 +16,22 @@ export declare type Constructor<T> = {
     new (...args: any[]): T;
 };
 export { log };
+export declare function valueType(value: unknown): unknown;
 export declare class ValidationError extends Error {
-    static getMessage(value: unknown, expectedType: string, name?: string): string;
-    constructor(value: unknown, expectedType: string, name?: string);
+    static getMessage(value: unknown, expectedType?: string, name?: string): string;
+    constructor(value: unknown, expectedType?: string, name?: string);
 }
-export declare function check<T>(value: unknown, validator: (x: unknown) => boolean, expected: string, name?: string, options?: {
+export declare type ValidatorOptions<T> = {
+    name?: string;
     default?: T | ((x: unknown) => T);
-    warnIf?: (x: unknown) => boolean;
-}): T;
+    warn?: (x: unknown) => boolean;
+};
+export declare type Validator<T> = {
+    validate: (x: unknown) => boolean;
+    expected?: string;
+    options?: ValidatorOptions<T>;
+};
+export declare function check<T>(value: unknown, validator: Validator<T> | ((x: unknown) => boolean), options?: ValidatorOptions<T> | string): T;
 /**
  * Checks if a value is a number or a string.
  * @param value

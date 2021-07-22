@@ -12,17 +12,19 @@ variables and parameters.
 
 ## Functions
 
-### `check(value, validator, expected, name, options)`
+### `check(value, validator, options)`
 
 **Arguments**:
 - `value`: Input value to test.
-- `validator`: (function) Takes the input value and returns a boolean.
-- `expected`: (string) Description of the expected type. Used in error/warning messages.
-- `name`: (string, optional) Name of the value to be used in error/warning messages. Defaults to 'value'.
-- `options`: (object, optional)
-    - `default`: Value to return if input value did not pass validation. Can be a function that takes input value as argument.
-    - `warnIf`: (function) Function to determine whether a warning should be displayed. Default behaviour is that warnings
-                are only displayed if a non-nil value was given.
+- `validator`: (object) Specifies how to validate the value.
+    - `validate`: (function) Takes the value as input and should provide a boolean output.
+    - `expected`: (string) A description of the expected value.
+    - `options`: (object, optional)
+        - `name`: (string, optional) Name of the value to be used in error/warning messages. Defaults to 'value'.
+        - `default`: Value to return if input value did not pass validation. Can be a function that takes input value as argument.
+        - `warn`: (function) Function to determine whether a warning should be displayed. Default behaviour is that warnings
+        are only displayed if a non-nil value was given.
+- `options`: (object/string, optional) Overrides the options of the validator. If a string is provided, it will be treated as the `name` option.
 
 **Returns**:
 The value if it passed validation, the provided default value if it did not. Throws an error if value did not pass
@@ -34,22 +36,45 @@ Javascript:
 
 ```javascript
 // Simple example:
-let fullName = check(123, _.isString, "string"); // will throw error
+let fullName = check(123, {validator: _.isString, expected: "string"}); // will throw error
+
 // Full example:
-let fullName = check(123, _.isString, "string", "fullName", {
-    default: "John Doe", 
-    warnIf(x) { return _.isNumber(x) }
+let fullName = check(123, { validator: _.isString, expected: 'string'}, {
+	name: "fullName",
+	default: "John Doe",
+	warn(x) {
+		return !_.isNil(x)
+	}
 });
+
+// Using predefined validator object:
+let fullName = check(123, IS_STRING, {default: "John Doe", warn: x => !_.isNil(x)})
 ```
 
 Typescript:
 
 ```typescript
-let fullName = check<string>(123, _.isString, "string");
+let fullName = check<string>(123, {validate: _.isString, expected: "string"});
 ```
 
 Adding the dynamic type will let Typescript know the result is checked to be the given type. Make sure the dynamic type
 matches the runtime type validator!
+
+Using predefined validators, the return value of `check` will be typed accordingly:
+
+```typescript
+let fullName = check(123, IS_STRING); // TypeScript will determine fullName to be string
+```
+
+Custom validators can be predefined as well:
+
+```typescript
+const MY_VALIDATOR:Validator<MyType> = {
+	validate: x => myValidation(x),
+    expected: 'my validated value'
+}
+let value = check(123, MY_VALIDATOR);
+```
 
 ### Functions
 

@@ -1,0 +1,12 @@
+import { alphanumeric, Class, Constructor, Validator } from "./index";
+export declare const IS_NUMBER: Validator<number>;
+export declare const IS_OBJECT: Validator<object>;
+export declare const IS_BOOLEAN: Validator<boolean>;
+export declare const IS_STRING: Validator<string>;
+export declare const IS_ARRAY: Validator<unknown[]>;
+export declare const IS_ALPHANUMERIC: Validator<alphanumeric>;
+export declare const IS_PRIMITIVE: Validator<alphanumeric>;
+export declare const IS_CLASS: Validator<Class>;
+export declare function IS_ARRAY_OF<T>(validator: Validator<T>): Validator<T[]>;
+export declare function IS_INSTANCE_OF<T>(Class: Constructor<T>): Validator<T>;
+export declare function IS_SUBCLASS_OF<T>(Class: Constructor<T>, includeIndentity?: boolean): Validator<T>;
