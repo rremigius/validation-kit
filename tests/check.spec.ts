@@ -1,7 +1,7 @@
 import {check} from "../src";
 import {assert} from "chai";
 import * as _ from "lodash";
-import {IS_ARRAY, IS_ARRAY_OF, IS_INSTANCE_OF, IS_NUMBER, IS_OBJECT, IS_STRING} from "../src/validators";
+import {IS_ARRAY_OF, IS_INSTANCE_OF, IS_NUMBER, IS_OBJECT, IS_STRING} from "../src/validators";
 
 describe("check", () => {
 	it("returns unmodified input if it passes evaluator", () => {

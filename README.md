@@ -36,10 +36,10 @@ Javascript:
 
 ```javascript
 // Simple example:
-let fullName = check(123, {validator: _.isString, expected: "string"}); // will throw error
+let fullName = check(123, { validate: _.isString, expected: "string"}); // will throw error
 
 // Full example:
-let fullName = check(123, { validator: _.isString, expected: 'string'}, {
+let fullName = check(123, { validate: _.isString, expected: 'string'}, {
 	name: "fullName",
 	default: "John Doe",
 	warn(x) {
