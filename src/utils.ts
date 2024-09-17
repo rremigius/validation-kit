@@ -6,4 +6,4 @@ export {
 	isFunction,
 	isBoolean,
 	find
-} from "lodash";
+} from "lodash-es";
