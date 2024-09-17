@@ -25,7 +25,7 @@
   "dependencies": {
     "esm": "^3.2.25",
     "lodash-es": "^4.17.21",
-    "log-control": "0.0.2",
+    "log-control": "github:rremigius/log-control",
     "ts-node": "^9.1.1",
     "typescript": "^4.2.3"
   },
