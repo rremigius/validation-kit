@@ -1,1 +1,1 @@
-export { isNumber, isPlainObject, isString, isArray, isFunction, isBoolean, find } from "lodash";
+export { isNumber, isPlainObject, isString, isArray, isFunction, isBoolean, find } from "lodash-es";

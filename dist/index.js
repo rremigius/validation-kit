@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _ from 'lodash-es';
 import Log from 'log-control';
 import { isString } from "./utils";
 const log = Log.instance("validation");

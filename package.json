@@ -23,7 +23,7 @@
   "bugs": "https://github.com/rremigius/common-validation/issues",
   "license": "ISC",
   "dependencies": {
-    "@types/lodash": "^4.14.168",
+    "@types/lodash-es": "^4.17.12",
     "esm": "^3.2.25",
     "lodash-es": "^4.17.21",
     "log-control": "0.0.2",
